@@ -55,7 +55,7 @@ export function QuestionIndicators({
 
   return (
     <motion.div 
-      className="flex justify-center flex-wrap gap-2 mb-8"
+      className="flex justify-center flex-wrap gap-4 mb-8"
       variants={container}
       initial="hidden"
       animate="show"
