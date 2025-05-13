@@ -59,6 +59,17 @@ export type QuizQuestion = {
   question_type: 'multiple_choice' | 'true_false' | 'audio' | 'image';
 };
 
+export type QuizTrack = {
+  id: string;
+  name: string;
+  artist: string;
+  album?: string;
+  image?: string;
+  preview_url?: string;
+  external_url?: string;
+  popularity?: number;
+};
+
 export type Database = {
   public: {
     Tables: {
