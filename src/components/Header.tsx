@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Music, Menu, Headphones } from "lucide-react";
+import { Music, Menu, Headphones, LogOut, UserRound, Loader2 } from "lucide-react";
 import { useState } from "react";
 import {
   Sheet,
@@ -11,10 +11,23 @@ import {
   SheetTitle,
 } from "./ui/sheet";
 import { cn } from "@/lib/utils";
-
+import { signIn, signOut, useSession } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useRouter } from "next/navigation";
 export default function Header() {
+  const router = useRouter();
   const [activeLink, setActiveLink] = useState("/");
-  
+  const { data: session, status } = useSession();
+
+
   const NavLink = ({ href, children }: { href: string, children: React.ReactNode }) => {
     const isActive = activeLink === href;
     return (
@@ -23,8 +36,8 @@ export default function Header() {
         onClick={() => setActiveLink(href)}
         className={cn(
           "relative px-3 py-1.5 text-sm font-medium transition-colors",
-          isActive 
-            ? "text-green-600" 
+          isActive
+            ? "text-green-600"
             : "text-gray-600 hover:text-green-600"
         )}
       >
@@ -37,7 +50,7 @@ export default function Header() {
   };
 
   return (
-    <nav className="sticky top-0 z-10 bg-white/80 backdrop-filter backdrop-blur-xl shadow-sm border-b border-gray-100">
+    <nav className="sticky top-0 z-10 bg-white/30 backdrop-filter backdrop-blur-xl shadow-sm border-b border-gray-100">
       <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center h-9 w-9 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm">
@@ -54,10 +67,45 @@ export default function Header() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-sm text-sm rounded-full px-5">
-            <img src="/SpotifyIconWhite.svg" alt="Spotify" className="w-4 h-4 mr-1.5" />
-            Login with Spotify
-          </Button>
+          {session ? (
+            <div className="flex items-center gap-4">
+              <DropdownMenu >
+                <DropdownMenuTrigger>    <Avatar className="h-9 w-9 border border-gray-200">
+                  <AvatarImage src={session.user?.image || ""} alt={session.user?.name || "User"} />
+                  <AvatarFallback className="bg-green-100 text-green-600">
+                    {session.user?.name?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar></DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>Hesabım</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
+                    <UserRound className="h-4 w-4 mr-2" />
+                    Profil</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()} variant="destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Çıkış Yap</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+
+
+            </div>
+          ) : status === "loading" ? (
+            <span className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Loading...
+            </span>
+          ) : (
+            <Button
+              className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-sm text-sm rounded-full px-5"
+              onClick={() => signIn('spotify')}
+            >
+              <img src="/SpotifyIconWhite.svg" alt="Spotify" className="w-4 h-4 mr-1.5" />
+              Login with Spotify
+            </Button>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -78,29 +126,57 @@ export default function Header() {
                 </SheetTitle>
               </SheetHeader>
               <div className="flex flex-col py-4 px-6">
-                <Link 
-                  href="/how-to-play" 
+                <Link
+                  href="/how-to-play"
                   className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
                 >
                   How to Play
                 </Link>
-                <Link 
-                  href="/leaderboard" 
+                <Link
+                  href="/leaderboard"
                   className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
                 >
                   Leaderboard
                 </Link>
-                <Link 
-                  href="/about" 
+                <Link
+                  href="/about"
                   className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
                 >
                   About
                 </Link>
                 <div className="mt-6">
-                  <Button className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-sm w-full py-6 rounded-xl text-base">
-                    <img src="/SpotifyIconWhite.svg" alt="Spotify" className="w-5 h-5 mr-2" />
-                    Login with Spotify
-                  </Button>
+                  {session ? (
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border border-gray-200">
+                          <AvatarImage src={session.user?.image || ""} alt={session.user?.name || "User"} />
+                          <AvatarFallback className="bg-green-100 text-green-600">
+                            {session.user?.name?.[0]?.toUpperCase() || "U"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{session.user?.name}</div>
+                          <div className="text-xs text-gray-500">{session.user?.email}</div>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        onClick={() => signOut()}
+                        className="mt-2 border-gray-200 text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-sm w-full py-6 rounded-xl text-base"
+                      onClick={() => signIn('spotify')}
+                    >
+                      <img src="/SpotifyIconWhite.svg" alt="Spotify" className="w-5 h-5 mr-2" />
+                      Login with Spotify
+                    </Button>
+                  )}
                 </div>
               </div>
             </SheetContent>
