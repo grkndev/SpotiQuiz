@@ -1,97 +1,71 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Share2, MoreHorizontal, Music, BadgeCheck, Trophy } from "lucide-react";
+import { Edit, Share2, MoreHorizontal, Music, BadgeCheck, Trophy, LogIn } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { getUserGameLogs, getUserProfile } from "@/lib/db";
-import { GameLog, UserProfile } from "@/lib/types";
+import { getUserProfile, getUserGameLogs } from "@/lib/db";
+import { UserProfile, GameLog } from "@/lib/types";
 import { toast } from "sonner";
 
-export default function Profile() {
+export default function UserProfilePage() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const refreshParam = searchParams.get('refresh');
+    const params = useParams();
+    const userId = params.userId as string;
     
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
     const [gameLogs, setGameLogs] = useState<GameLog[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [lastRefreshTime, setLastRefreshTime] = useState<string | null>(null);
+    const [isOwner, setIsOwner] = useState(false);
 
-    // Fetch data function
-    const fetchUserData = useCallback(async () => {
-        if (!session?.user?.id || status !== "authenticated") {
-            setIsLoading(false);
-            return;
-        }
-
-        try {
-            setIsLoading(true);
-            // Fetch user profile directly from database for most updated data
-            const freshProfile = await getUserProfile(session.user.id);
-            if (freshProfile) {
-                setUserProfile(freshProfile);
+    useEffect(() => {
+        async function fetchProfileData() {
+            try {
+                // Fetch user profile
+                const userProfile = await getUserProfile(userId);
+                setProfile(userProfile);
+                
+                // Fetch user's game logs
+                const logs = await getUserGameLogs(userId);
+                setGameLogs(logs);
+                
+                // Check if current user is the profile owner
+                if (status === "authenticated" && session?.user?.id === userId) {
+                    setIsOwner(true);
+                }
+            } catch (error) {
+                console.error("Error fetching profile data:", error);
+                toast.error("Profil bilgileri yüklenirken bir hata oluştu.");
+            } finally {
+                setIsLoading(false);
             }
-
-            // Fetch user's game logs
-            const logs = await getUserGameLogs(session.user.id);
-            setGameLogs(logs);
-            
-            // Update last refresh time
-            setLastRefreshTime(new Date().toISOString());
-        } catch (error) {
-            console.error("Error fetching user data:", error);
-        } finally {
-            setIsLoading(false);
         }
-    }, [session?.user?.id, status]);
 
-    // Only fetch data when needed: on initial load, when refresh param changes, or when session changes
-    useEffect(() => {
-        // If this is the first load or refresh param has changed, fetch data
-        if (lastRefreshTime === null || refreshParam) {
-            fetchUserData();
+        if (userId) {
+            fetchProfileData();
         }
-    }, [fetchUserData, refreshParam, lastRefreshTime]);
-
-    // Redirect once session status is determined
-    useEffect(() => {
-        if (status === "authenticated" && session?.user?.id) {
-            // If user is logged in, redirect to their specific profile page
-            router.push(`/profile/${session.user.id}`);
-        } else if (status === "unauthenticated") {
-            // User is not logged in, we'll show the "login required" UI
-            // The UI will be rendered below
-        }
-    }, [router, session, status]);
+    }, [userId, session, status]);
 
     // Copy profile URL to clipboard
     const shareProfile = () => {
-        if (session?.user?.id) {
-            const url = `${window.location.origin}/profile/${session.user.id}`;
-            navigator.clipboard.writeText(url)
-                .then(() => {
-                    toast.success("Profil bağlantısı panoya kopyalandı!");
-                })
-                .catch(() => {
-                    toast.error("Profil bağlantısı kopyalanırken bir hata oluştu.");
-                });
-        }
-    };
-
-    // Profile editing function
-    const editProfile = () => {
-        router.push("/profile/edit");
+        const url = `${window.location.origin}/profile/${userId}`;
+        navigator.clipboard.writeText(url)
+            .then(() => {
+                toast.success("Profil bağlantısı panoya kopyalandı!");
+            })
+            .catch(() => {
+                toast.error("Profil bağlantısı kopyalanırken bir hata oluştu.");
+            });
     };
 
     // Loading state
-    if (status === "loading" || isLoading) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[70vh]">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
@@ -99,40 +73,21 @@ export default function Profile() {
         );
     }
 
-    // Use profile data
-    const profile = userProfile || {
-        username: session?.user?.username || session?.user?.name,
-        bio: session?.user?.bio,
-        badges: session?.user?.badges || [],
-        total_games: session?.user?.stats?.totalGames || 0,
-        correct_answers: session?.user?.stats?.correctAnswers || 0,
-        spoticoin: session?.user?.spoticoin || 0
-    };
-
-    // Not logged in state - this shows while the redirect is happening or if user isn't authenticated
-    if (status === "unauthenticated") {
+    // Profile not found state
+    if (!profile) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[70vh] p-4">
                 <Card className="max-w-md w-full">
                     <CardHeader className="text-center">
-                        <CardTitle className="text-xl">Giriş Gerekli</CardTitle>
-                        <CardDescription>
-                            Kendi profilinizi görüntülemek için giriş yapmalısınız, 
-                            ama diğer kullanıcıların profillerini misafir olarak görüntüleyebilirsiniz.
-                        </CardDescription>
+                        <CardTitle className="text-xl">Profil Bulunamadı</CardTitle>
+                        <CardDescription>Aradığınız kullanıcı profili mevcut değil veya erişiminiz yok.</CardDescription>
                     </CardHeader>
-                    <CardFooter className="flex justify-center gap-4">
+                    <CardFooter className="flex justify-center">
                         <Button
                             onClick={() => router.push("/")}
-                            variant="outline"
-                        >
-                            Ana Sayfaya Dön
-                        </Button>
-                        <Button
-                            onClick={() => router.push("/leaderboard")}
                             className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
                         >
-                            Liderlik Tablosuna Git
+                            Ana Sayfaya Dön
                         </Button>
                     </CardFooter>
                 </Card>
@@ -155,33 +110,51 @@ export default function Profile() {
                     <div className="absolute -top-16 left-6 border-4 border-white rounded-full">
                         <Avatar className="h-32 w-32 shadow-md">
                             <AvatarFallback className="bg-green-100 text-green-600 text-4xl">
-                                {profile.username?.[0]?.toUpperCase() || "K"}
+                                {profile?.username?.[0]?.toUpperCase() || "K"}
                             </AvatarFallback>
                         </Avatar>
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex justify-end items-center mt-4 gap-2">
+                        {/* Guest login prompt */}
+                        {status === "unauthenticated" && (
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-full text-sm"
+                                onClick={() => router.push("/")}
+                            >
+                                <LogIn className="h-4 w-4 mr-1" />
+                                Giriş Yap
+                            </Button>
+                        )}
+                        
+                        {/* Share profile button */}
                         <Button variant="outline" size="sm" className="rounded-full text-sm" onClick={shareProfile}>
                             <Share2 className="h-4 w-4 mr-1" />
                             Profili Paylaş
                         </Button>
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="rounded-full text-sm"
-                            onClick={editProfile}
-                        >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Profili Düzenle
-                        </Button>
+                        
+                        {/* Edit profile button - only shown to profile owner */}
+                        {isOwner && (
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="rounded-full text-sm"
+                                onClick={() => router.push("/profile/edit")}
+                            >
+                                <Edit className="h-4 w-4 mr-1" />
+                                Profili Düzenle
+                            </Button>
+                        )}
                     </div>
 
                     {/* Name and Title */}
                     <div className="mt-16">
                         <div className="flex items-center gap-2">
-                            <h1 className="text-2xl font-bold">{profile.username || "Kullanıcı Adı"}</h1>
-                            {profile.badges?.some(badge => badge.name === "Verified") && (
+                            <h1 className="text-2xl font-bold">{profile?.username || "Kullanıcı Adı"}</h1>
+                            {profile?.badges?.some(badge => badge.name === "Verified") && (
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
@@ -193,7 +166,7 @@ export default function Profile() {
                                     </Tooltip>
                                 </TooltipProvider>
                             )}
-                            {profile.badges?.some(badge => badge.name === "TopPlayer") && (
+                            {profile?.badges?.some(badge => badge.name === "TopPlayer") && (
                                 <TooltipProvider>
                                     <Tooltip>
                                         <TooltipTrigger>
@@ -206,7 +179,7 @@ export default function Profile() {
                                 </TooltipProvider>
                             )}
                         </div>
-                        <p className="text-gray-600 mt-1">{profile.bio || "Müzik Tutukunu | SpotiQuiz Oyuncusu | Spotify Kullanıcısı"}</p>
+                        <p className="text-gray-600 mt-1">{profile?.bio || "Müzik Tutukunu | SpotiQuiz Oyuncusu"}</p>
                     </div>
                 </div>
             </div>
@@ -220,15 +193,15 @@ export default function Profile() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="p-4 border rounded-lg bg-green-50 text-center">
                         <p className="text-sm text-gray-500">Toplam Oyun</p>
-                        <p className="text-xl font-bold text-green-600">{profile.total_games || 0}</p>
+                        <p className="text-xl font-bold text-green-600">{profile?.total_games || 0}</p>
                     </div>
                     <div className="p-4 border rounded-lg bg-blue-50 text-center">
                         <p className="text-sm text-gray-500">Doğru Cevap</p>
-                        <p className="text-xl font-bold text-blue-600">{profile.correct_answers || 0}</p>
+                        <p className="text-xl font-bold text-blue-600">{profile?.correct_answers || 0}</p>
                     </div>
                     <div className="p-4 border rounded-lg bg-purple-50 text-center">
                         <p className="text-sm text-gray-500">SpotiCoin</p>
-                        <p className="text-xl font-bold text-purple-600">{profile.spoticoin || 0}</p>
+                        <p className="text-xl font-bold text-purple-600">{profile?.spoticoin || 0}</p>
                     </div>
                     <div className="p-4 border rounded-lg bg-orange-50 text-center">
                         <p className="text-sm text-gray-500">Sıralama</p>
@@ -241,9 +214,6 @@ export default function Profile() {
             <div className="mt-6 rounded-xl overflow-hidden bg-white shadow-sm p-6">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold">Son Aktiviteler</h2>
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                        Tümünü Gör
-                    </Button>
                 </div>
 
                 <div className="space-y-4">
@@ -266,17 +236,19 @@ export default function Profile() {
                         ))
                     ) : (
                         <div className="text-center py-8 text-gray-500">
-                            <p>Henüz oyun kaydınız bulunmamaktadır.</p>
-                            <Button 
-                                onClick={() => router.push('/quiz')}
-                                className="mt-4 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                            >
-                                Quiz Oyna
-                            </Button>
+                            <p>Henüz oyun kaydı bulunmamaktadır.</p>
+                            {isOwner && (
+                                <Button 
+                                    onClick={() => router.push('/quiz')}
+                                    className="mt-4 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                                >
+                                    Quiz Oyna
+                                </Button>
+                            )}
                         </div>
                     )}
                 </div>
             </div>
         </div>
     );
-}
+} 

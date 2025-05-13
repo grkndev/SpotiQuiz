@@ -1,6 +1,7 @@
 import { LeaderboardTable } from "@/components/leaderboard/LeaderboardTable";
 import { getRankedLeaderboardData } from "@/lib/leaderboard-data";
 import { Trophy, Users, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export const metadata = {
   title: "SpotiQuiz - Leaderboard",
@@ -32,54 +33,59 @@ export default function LeaderboardPage() {
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mb-8">
               {/* Top Players Stats Cards */}
               {leaderboardData.slice(0, 3).map((user) => (
-                <div 
+                <Link 
                   key={user.id} 
-                  className={`
-                    rounded-xl p-6 border shadow-sm
-                    ${user.rank === 1 ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200' : 
-                      user.rank === 2 ? 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200' : 
-                      'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200'
-                    }
-                  `}
+                  href={`/profile/${user.id}`}
+                  className="block transition-all hover:shadow-md"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className={`
-                          flex items-center justify-center w-8 h-8 rounded-full text-white
-                          ${user.rank === 1 ? 'bg-yellow-400' : 
-                            user.rank === 2 ? 'bg-gray-400' : 
-                            'bg-amber-600'
-                          }
-                        `}
-                      >
-                        {user.rank}
+                  <div 
+                    className={`
+                      rounded-xl p-6 border shadow-sm
+                      ${user.rank === 1 ? 'bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200' : 
+                        user.rank === 2 ? 'bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200' : 
+                        'bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200'
+                      }
+                    `}
+                  >
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div 
+                          className={`
+                            flex items-center justify-center w-8 h-8 rounded-full text-white
+                            ${user.rank === 1 ? 'bg-yellow-400' : 
+                              user.rank === 2 ? 'bg-gray-400' : 
+                              'bg-amber-600'
+                            }
+                          `}
+                        >
+                          {user.rank}
+                        </div>
+                        <h3 className="font-bold text-lg">{user.username}</h3>
                       </div>
-                      <h3 className="font-bold text-lg">{user.username}</h3>
+                      <div className="flex items-center space-x-1 bg-white px-2 py-1 rounded-full shadow-sm">
+                        <Sparkles className="w-4 h-4 text-green-500" />
+                        <span className="text-sm font-medium text-green-600">
+                          {user.spotiCoins.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-1 bg-white px-2 py-1 rounded-full shadow-sm">
-                      <Sparkles className="w-4 h-4 text-green-500" />
-                      <span className="text-sm font-medium text-green-600">
-                        {user.spotiCoins.toLocaleString()}
-                      </span>
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                        <img 
+                          src={user.avatarUrl} 
+                          alt={user.username} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">{Math.round(user.winRate * 100)}% Kazanma Oranı</div>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      <span className="font-medium text-gray-700">{user.totalGamesPlayed}</span> oyun oynandı
                     </div>
                   </div>
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                      <img 
-                        src={user.avatarUrl} 
-                        alt={user.username} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">{Math.round(user.winRate * 100)}% Kazanma Oranı</div>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    <span className="font-medium text-gray-700">{user.totalGamesPlayed}</span> oyun oynandı
-                  </div>
-                </div>
+                </Link>
               ))}
             </div>
             

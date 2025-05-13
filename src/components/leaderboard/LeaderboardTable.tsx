@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy, Medal } from "lucide-react";
 import { User } from "@/lib/leaderboard-data";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface LeaderboardTableProps {
   users: User[];
@@ -75,7 +76,10 @@ export function LeaderboardTable({ users }: LeaderboardTableProps) {
                 {user.rank && getRankIcon(user.rank)}
               </TableCell>
               <TableCell>
-                <div className="flex items-center space-x-3">
+                <Link 
+                  href={`/profile/${user.id}`} 
+                  className="flex items-center space-x-3 hover:underline-offset-2 hover:underline transition-all"
+                >
                   <Avatar>
                     <AvatarImage src={user.avatarUrl} alt={user.username} />
                     <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
@@ -83,7 +87,7 @@ export function LeaderboardTable({ users }: LeaderboardTableProps) {
                   <div>
                     <div className="font-medium">{user.username}</div>
                   </div>
-                </div>
+                </Link>
               </TableCell>
               <TableCell className="text-center font-medium">{user.spotiCoins.toLocaleString()}</TableCell>
               <TableCell className="hidden md:table-cell text-center">{user.totalGamesPlayed}</TableCell>
