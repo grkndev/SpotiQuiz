@@ -73,7 +73,9 @@ export default function Header() {
                 Oyna
               </Link>
               <div className="bg-zinc-200 py-1 px-2 rounded-full flex items-center gap-1 w-full">
-                <span className="text-sm font-medium">1000</span>
+                <span className="text-sm font-medium">
+                  {session?.user?.spoticoin}
+                </span>
                 <Coins className="w-4 h-4" />
               </div>
               <DropdownMenu >
@@ -121,79 +123,103 @@ export default function Header() {
           )}
         </div>
 
+
         {/* Mobile Menu */}
-        <div className="md:hidden">
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="p-1 rounded-full hover:bg-gray-100">
-                <Menu className="h-5 w-5 text-gray-700" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="right" className="border-l border-gray-100 backdrop-blur-lg bg-white/95 p-0">
-              <SheetHeader className="px-6 pt-8 pb-6 border-b border-gray-100">
-                <SheetTitle className="flex items-center gap-2">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm">
-                    <Headphones className="h-4 w-4 text-white" />
-                  </div>
-                  <span className="text-2xl font-bold bg-gradient-to-br from-green-500 to-green-700 inline-block text-transparent bg-clip-text">SpotiQuiz</span>
-                </SheetTitle>
-              </SheetHeader>
-              <div className="flex flex-col py-4 px-6">
-                <Link
-                  href="/how-to-play"
-                  className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
-                >
-                  How to Play
-                </Link>
-                <Link
-                  href="/leaderboard"
-                  className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
-                >
-                  Leaderboard
-                </Link>
-                <Link
-                  href="/about"
-                  className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
-                >
-                  About
-                </Link>
-                <div className="mt-6">
-                  {session ? (
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-10 w-10 border border-gray-200">
-                          <AvatarImage src={session.user?.image || ""} alt={session.user?.name || "User"} />
-                          <AvatarFallback className="bg-green-100 text-green-600">
-                            {session.user?.name?.[0]?.toUpperCase() || "U"}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{session.user?.name}</div>
-                          <div className="text-xs text-gray-500">{session.user?.email}</div>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outline"
-                        onClick={() => signOut()}
-                        className="mt-2 border-gray-200 text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50"
-                      >
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Logout
-                      </Button>
+        <div className="md:hidden flex items-center gap-2 ">
+          {/* Spoticoin */}
+          <div className="bg-zinc-200 py-1 px-2 rounded-full flex items-center gap-1 w-full">
+            <span className="text-sm font-medium">
+              {session?.user?.spoticoin}
+            </span>
+            <Coins className="w-4 h-4" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href="/game" className="bg-green-300 py-1 px-4 rounded-md flex items-center gap-1 w-full">
+              Oyna
+            </Link>
+          </div>
+
+
+
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="p-1 rounded-full hover:bg-gray-100">
+                  <Menu className="h-5 w-5 text-gray-700" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="border-l border-gray-100 backdrop-blur-lg bg-white/95 p-0">
+                <SheetHeader className="px-6 pt-8 pb-6 border-b border-gray-100">
+                  <SheetTitle className="flex items-center gap-2">
+                    <div className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm">
+                      <Headphones className="h-4 w-4 text-white" />
                     </div>
-                  ) : (
-                    <Button
-                      className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-sm w-full py-6 rounded-xl text-base"
-                      onClick={() => signIn('spotify')}
-                    >
-                      <img src="/SpotifyIconWhite.svg" alt="Spotify" className="w-5 h-5 mr-2" />
-                      Login with Spotify
-                    </Button>
-                  )}
+                    <span className="text-2xl font-bold bg-gradient-to-br from-green-500 to-green-700 inline-block text-transparent bg-clip-text">SpotiQuiz</span>
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col py-4 px-6">
+                  <Link
+                    href="/how-to-play"
+                    className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
+                  >
+                    How to Play
+                  </Link>
+                  <Link
+                    href="/leaderboard"
+                    className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
+                  >
+                    Leaderboard
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
+                  >
+                    About
+                  </Link>
+                  <div className="mt-6">
+                    {session ? (
+                      <div className="flex flex-col gap-4">
+                        <Link
+                          href="/profile"
+                          className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
+                        >
+                          Profile
+                        </Link>
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10 border border-gray-200">
+                            <AvatarImage src={session.user?.image || ""} alt={session.user?.name || "User"} />
+                            <AvatarFallback className="bg-green-100 text-green-600">
+                              {session.user?.name?.[0]?.toUpperCase() || "U"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{session.user?.name}</div>
+                            <div className="text-xs text-gray-500">{session.user?.email}</div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => signOut()}
+                          className="mt-2 border-gray-200 text-gray-700 hover:text-red-600 hover:border-red-200 hover:bg-red-50"
+                        >
+                          <LogOut className="h-4 w-4 mr-2" />
+                          Logout
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        className="bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 shadow-sm w-full py-6 rounded-xl text-base"
+                        onClick={() => signIn('spotify')}
+                      >
+                        <img src="/SpotifyIconWhite.svg" alt="Spotify" className="w-5 h-5 mr-2" />
+                        Login with Spotify
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </SheetContent>
-          </Sheet>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </nav>
