@@ -11,7 +11,7 @@ const handler = NextAuth({
 
             authorization: {
                 params: {
-                    scope: "user-read-email playlist-read-private user-read-private user-top-read",
+                    scope: "streaming user-read-email playlist-read-private user-read-private user-top-read",
                     redirect_uri: "http://127.0.0.1:3000/api/auth/callback/spotify"
                     
                 }
