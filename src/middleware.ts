@@ -11,8 +11,8 @@ export async function middleware(request: NextRequest) {
   // Protected routes that require authentication
   const strictlyProtectedPaths = [
     '/profile/edit',
-    '/quiz/create',
-    '/dashboard'
+    '/dashboard',
+    '/game'
   ];
   
   // Special case: /profile is protected but /profile/[userId] is public
@@ -29,7 +29,6 @@ export async function middleware(request: NextRequest) {
   // Require authentication for strictly protected paths and base profile path
   if ((isStrictlyProtected || isBaseProfilePath) && !isAuthenticated) {
     const redirectUrl = new URL('/', request.url);
-    redirectUrl.searchParams.set('callbackUrl', path);
     return NextResponse.redirect(redirectUrl);
   }
   
@@ -39,7 +38,8 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/profile/:path*',
-    '/quiz/create/:path*',
+    '/game',
+    '/game/:path*',
     '/dashboard/:path*',
   ],
 };
