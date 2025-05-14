@@ -32,10 +32,10 @@ export function GameSummary({ questions, onRestart }: GameSummaryProps) {
       
       // console.log('Attempting to update SpotiCoin for user:', userId);
       
-      // First get current spoti_coin value
+      // First get current user stats
       const { data: userData, error: fetchError } = await supabase
         .from('profiles')
-        .select('spoticoin')
+        .select('spoticoin, total_questions, total_games, correct_answers')
         .eq('user_id', userId)
         .single();
 
@@ -44,18 +44,30 @@ export function GameSummary({ questions, onRestart }: GameSummaryProps) {
         return;
       }
 
-      // Calculate new spoti_coin value
+      // Calculate new values
       const currentCoins = userData?.spoticoin || 0;
+      const currentTotalQuestions = userData?.total_questions || 0;
+      const currentTotalGames = userData?.total_games || 0;
+      const currentCorrectAnswers = userData?.correct_answers || 0;
+      
       const newCoins = Math.max(0, currentCoins + points); // Ensure coins don't go below 0
+      const newTotalQuestions = currentTotalQuestions + questions.length;
+      const newTotalGames = currentTotalGames + 1;
+      const newCorrectAnswers = currentCorrectAnswers + correctCount;
 
-      // Update with new value
+      // Update with new values
       const { data, error } = await supabase
         .from('profiles')
-        .update({ spoticoin: newCoins })
+        .update({ 
+          spoticoin: newCoins,
+          total_questions: newTotalQuestions,
+          total_games: newTotalGames,
+          correct_answers: newCorrectAnswers
+        })
         .eq('user_id', userId);
 
       if (error) {
-        console.error('Error updating spoti_coin:', error);
+        console.error('Error updating user stats:', error);
       } else {
         // console.log('SpotiCoin updated successfully:', newCoins);
         setCoinUpdated(true);
