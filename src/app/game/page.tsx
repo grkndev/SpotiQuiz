@@ -45,7 +45,7 @@ export default function GamePage() {
           } : undefined
         }));
 
-        console.log(mappedQuestions)
+        // console.log(mappedQuestions)
         
         setQuestions(mappedQuestions);
       } catch (err) {

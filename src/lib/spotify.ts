@@ -8,20 +8,54 @@ export async function spotifyApi(
   accessToken: string,
   options: RequestInit = {}
 ) {
-  const res = await fetch(`${SPOTIFY_API_URL}${endpoint}`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json',
-    },
-    ...options,
-  });
+  try {
+    const res = await fetch(`${SPOTIFY_API_URL}${endpoint}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      ...options,
+    });
 
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error.error.message || 'Something went wrong with the Spotify API request');
+    if (!res.ok) {
+      // Try to parse the error response
+      let errorMessage = `${res.status} ${res.statusText}`;
+      try {
+        const errorData = await res.json();
+        if (errorData?.error?.message) {
+          errorMessage = errorData.error.message;
+        }
+      } catch (parseError) {
+        // If we can't parse the error JSON, just use the status code
+      }
+      
+      // Extract resource ID from endpoint for better error context
+      const resourceIdMatch = endpoint.match(/\/([a-zA-Z0-9]{22})(\/|$|\?)/);
+      const resourceId = resourceIdMatch ? resourceIdMatch[1] : 'unknown';
+      
+      // Create a more descriptive error
+      const error = new Error(errorMessage);
+      // Add extra properties for debugging
+      (error as any).endpoint = endpoint;
+      (error as any).resourceId = resourceId;
+      (error as any).statusCode = res.status;
+      
+      throw error;
+    }
+
+    return res.json();
+  } catch (error: any) {
+    // Don't log 404 errors for artist endpoints, as these are expected sometimes
+    const is404ForArtist = error?.statusCode === 404 && 
+                          (error?.endpoint?.includes('/artists/') || 
+                           error?.endpoint?.includes('/artist/'));
+    
+    if (!is404ForArtist) {
+      console.error(`Spotify API error (${endpoint}):`, error);
+    }
+    
+    throw error;
   }
-
-  return res.json();
 }
 
 /**

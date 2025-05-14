@@ -42,27 +42,55 @@ export async function GET(req: NextRequest) {
     const questionCount = parseInt(searchParams.get('count') || '10', 10);
     const limit = Math.min(Math.max(questionCount, 5), 20); // Ensure between 5 and 20
     
-    // Fetch all the track data we need
-    const [topTracksResponse, topArtistsResponse] = await Promise.all([
-      getTopTracks(accessToken, 'medium_term', 50),
-      getTopArtists(accessToken, 'medium_term', 20)
-    ]);
+    // Initialize data containers
+    let topTracksResponse = { items: [] };
+    let topArtistsResponse = { items: [] };
+    let relatedArtistTracks = [];
+    let savedAndRecentTracks = [];
+    
+    // Fetch top tracks and artists with error handling
+    try {
+      [topTracksResponse, topArtistsResponse] = await Promise.all([
+        getTopTracks(accessToken, 'medium_term', 50),
+        getTopArtists(accessToken, 'medium_term', 20)
+      ]);
+    } catch (error) {
+      console.error("Error fetching top tracks and artists:", error);
+      // Continue with empty data
+    }
     
     // Get artist IDs
-    const topArtistIds = topArtistsResponse.items.map((artist: any) => artist.id);
+    const topArtistIds = topArtistsResponse.items?.map((artist: any) => artist.id) || [];
     
-    // Fetch additional track data
-    const [relatedArtistTracks, savedAndRecentTracks] = await Promise.all([
-      getRelatedArtistTracks(topArtistIds, accessToken),
-      getUserSavedAndRecentTracks(accessToken)
-    ]);
+    // Fetch additional track data with separate error handling
+    try {
+      relatedArtistTracks = await getRelatedArtistTracks(topArtistIds, accessToken);
+    } catch (error) {
+      console.error("Error fetching related artist tracks:", error);
+      // Continue with empty data
+    }
+    
+    try {
+      savedAndRecentTracks = await getUserSavedAndRecentTracks(accessToken);
+    } catch (error) {
+      console.error("Error fetching saved and recent tracks:", error);
+      // Continue with empty data
+    }
     
     // Combine all tracks and remove duplicates
     const allTracks = [
-      ...topTracksResponse.items,
+      ...(topTracksResponse.items || []),
       ...relatedArtistTracks,
       ...savedAndRecentTracks
     ];
+    
+    // Check if we have enough tracks to create a meaningful quiz
+    if (allTracks.length < 5) {
+      return NextResponse.json(
+        { error: "Not enough track data available to create a quiz. Please listen to more music on Spotify and try again." },
+        { status: 400 }
+      );
+    }
     
     const uniqueTracks = allTracks.filter((track: any, index: number, self: any[]) => 
       index === self.findIndex((t: any) => t.id === track.id)
