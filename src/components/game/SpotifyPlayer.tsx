@@ -8,6 +8,23 @@ interface SpotifyPlayerProps {
     onTogglePlay?: () => void;
 }
 
+// Use this to force remounts based on URI to solve Vercel deployment issues
+const SpotifyPlayerWithKey = ({ uris, isPlaying, onTogglePlay }: SpotifyPlayerProps) => {
+    // Create a key from the URIs to force remount when they change
+    const uriKey = uris.join('-');
+    
+    return (
+        <div key={`player-container-${uriKey}`}>
+            <SpotifyPlayer
+                key={`player-${uriKey}`}
+                uris={uris}
+                isPlaying={isPlaying}
+                onTogglePlay={onTogglePlay}
+            />
+        </div>
+    );
+};
+
 export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerProps) {
     const { data: session } = useSession();
     const [playerError, setPlayerError] = useState<string | null>(null);
@@ -17,6 +34,7 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
     const previousUriRef = useRef<string | null>(null);
     const trackChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const playerStateRef = useRef<any>(null);
+    const isProductionRef = useRef<boolean>(typeof window !== 'undefined' && window.location.hostname !== 'localhost');
     
     // Force re-render of player component with a unique key when tracks change
     const [playerKey, setPlayerKey] = useState(() => `spotify-player-${Date.now()}`);
@@ -122,7 +140,7 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
             // Set a delay before allowing playback again
             trackChangeTimeoutRef.current = setTimeout(() => {
                 setPlayerReady(true);
-            }, 1000);
+            }, isProductionRef.current ? 2000 : 1000); // Longer delay in production
         }
         
         // Store current URI for next comparison
@@ -150,7 +168,7 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
         // Force update of player with slight delay
         setTimeout(() => {
             setPlayerReady(true);
-        }, 500);
+        }, isProductionRef.current ? 1000 : 500); // Longer delay in production
     };
 
     // Handle token-related issues
@@ -287,3 +305,6 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
         </div>
     );
 }
+
+// Export the keyed wrapper instead to force remount in Vercel environment
+export default SpotifyPlayerWithKey;

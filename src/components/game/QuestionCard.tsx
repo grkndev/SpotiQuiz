@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { GameQuestion } from "@/types/game";
-import { SpotifyPlayer } from "./SpotifyPlayer";
+import SpotifyPlayer from "./SpotifyPlayer";
 import { Pause, Play } from "lucide-react";
 
 interface QuestionCardProps {

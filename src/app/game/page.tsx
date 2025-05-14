@@ -104,6 +104,23 @@ export default function GamePage() {
     
     setQuestions(updatedQuestions);
     
+    // Force all music to stop before moving to the next question
+    const stopAllMusic = () => {
+      // Stop any playback
+      const spotifyIframes = document.querySelectorAll('iframe[src*="spotify"]');
+      spotifyIframes.forEach(iframe => {
+        try {
+          // Try to remove the iframe completely
+          iframe.parentNode?.removeChild(iframe);
+        } catch (e) {
+          console.warn('Error removing Spotify iframe:', e);
+        }
+      });
+    };
+    
+    // Stop music first
+    stopAllMusic();
+    
     // Move to next question after a short delay
     setTimeout(() => {
       if (revisitingSkipped) {
@@ -142,6 +159,23 @@ export default function GamePage() {
     updatedQuestions[currentQuestionIndex].status = QuestionStatus.SKIPPED;
     setQuestions(updatedQuestions);
     
+    // Force all music to stop before moving to the next question
+    const stopAllMusic = () => {
+      // Stop any playback
+      const spotifyIframes = document.querySelectorAll('iframe[src*="spotify"]');
+      spotifyIframes.forEach(iframe => {
+        try {
+          // Try to remove the iframe completely
+          iframe.parentNode?.removeChild(iframe);
+        } catch (e) {
+          console.warn('Error removing Spotify iframe:', e);
+        }
+      });
+    };
+    
+    // Stop music first
+    stopAllMusic();
+    
     // Move to next question
     if (revisitingSkipped) {
       // Find next skipped question
@@ -173,6 +207,23 @@ export default function GamePage() {
   
   const navigateToQuestion = (index: number) => {
     if (index === currentQuestionIndex) return;
+    
+    // Force all music to stop before moving to the next question
+    const stopAllMusic = () => {
+      // Stop any playback
+      const spotifyIframes = document.querySelectorAll('iframe[src*="spotify"]');
+      spotifyIframes.forEach(iframe => {
+        try {
+          // Try to remove the iframe completely
+          iframe.parentNode?.removeChild(iframe);
+        } catch (e) {
+          console.warn('Error removing Spotify iframe:', e);
+        }
+      });
+    };
+    
+    // Stop music first
+    stopAllMusic();
     
     // Update direction and then change the question index
     setDirection(index > currentQuestionIndex ? 1 : -1);
