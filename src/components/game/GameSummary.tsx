@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { GameQuestion, QuestionStatus } from "@/types/game";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 interface GameSummaryProps {
   questions: GameQuestion[];
@@ -16,7 +16,7 @@ export function GameSummary({ questions, onRestart }: GameSummaryProps) {
   // Calculate statistics
   const correctCount = questions.filter(q => q.status === QuestionStatus.CORRECT).length;
   const wrongCount = questions.filter(q => q.status === QuestionStatus.WRONG).length;
-  const skippedCount = questions.filter(q => q.status === QuestionStatus.SKIPPED).length;
+  // const skippedCount = questions.filter(q => q.status === QuestionStatus.SKIPPED).length;
   const points = (correctCount * 10) - (wrongCount * 5);
 
   const updateSpotiCoin = async () => {
@@ -56,7 +56,7 @@ export function GameSummary({ questions, onRestart }: GameSummaryProps) {
       const newCorrectAnswers = currentCorrectAnswers + correctCount;
 
       // Update with new values
-      const { data, error } = await supabase
+      const {  error } = await supabase
         .from('profiles')
         .update({ 
           spoticoin: newCoins,
@@ -73,7 +73,7 @@ export function GameSummary({ questions, onRestart }: GameSummaryProps) {
         setCoinUpdated(true);
       }
     } catch (error) {
-      // console.error('Unexpected error during SpotiCoin update:', error);
+      console.error('Unexpected error during SpotiCoin update:', error);
     }
   }
   

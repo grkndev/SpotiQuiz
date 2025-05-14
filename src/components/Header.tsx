@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Music, Menu, Headphones, LogOut, UserRound, Loader2, Coins, ChevronDown } from "lucide-react";
+import { Menu, Headphones, LogOut, UserRound, Loader2, Coins, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import {
   Sheet,

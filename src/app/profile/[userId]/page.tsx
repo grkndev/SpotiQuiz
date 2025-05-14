@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Share2, MoreHorizontal, Music, BadgeCheck, Trophy, LogIn } from "lucide-react";
-import Link from "next/link";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Edit, Share2, Music, BadgeCheck, Trophy, LogIn } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getUserProfile, getUserGameLogs } from "@/lib/db";

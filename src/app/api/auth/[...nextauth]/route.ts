@@ -1,7 +1,7 @@
 import NextAuth from "next-auth"
 import SpotifyProvider from "next-auth/providers/spotify"
-import { supabase, supabaseAdmin } from "@/lib/supabase"
-import { createUserProfile, getUserProfile, updateUserProfile, addBadgeToUser } from "@/lib/db"
+import { supabaseAdmin } from "@/lib/supabase"
+import { getUserProfile } from "@/lib/db"
 import { JWT } from "next-auth/jwt"
 
 // Spotify API scopes için kapsamlı izinler
@@ -77,7 +77,7 @@ const handler = NextAuth({
             try {
                 if (user && account && profile) {
                     // Check if user already exists in our database
-                    const { data: existingProfile, error } = await supabaseAdmin
+                    const { error } = await supabaseAdmin
                         .from('profiles')
                         .select('*')
                         .eq('user_id', user.id)
@@ -86,7 +86,7 @@ const handler = NextAuth({
                     if (error && error.code === 'PGRST116') {
                         // User doesn't exist, create new profile
                         // Create new user profile in Supabase using admin privileges
-                        const { data: newProfile, error: insertError } = await supabaseAdmin
+                        const { error: insertError } = await supabaseAdmin
                             .from('profiles')
                             .insert({
                                 user_id: user.id,
@@ -115,7 +115,7 @@ const handler = NextAuth({
                                     
                                 if (!badgeError && badgeData) {
                                     // Kullanıcıya badge eklerken de admin kullan
-                                    const { data: badgeResult, error: addBadgeError } = await supabaseAdmin
+                                    const { error: addBadgeError } = await supabaseAdmin
                                         .from('user_badges')
                                         .insert({
                                             user_id: user.id,
@@ -162,8 +162,8 @@ const handler = NextAuth({
             // Send properties to the client, like an access_token from a provider.
             session.accessToken = token.accessToken;
             if (token.error) {
-                // @ts-ignore - Add error field to session
-                session.error = token.error;
+              
+                (session as any).error = token.error;
             }
             
             if (token.id && session.user) {

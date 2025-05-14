@@ -7,15 +7,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trophy, Medal } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { User } from "@/lib/leaderboard-data";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
 
 interface LeaderboardTableProps {
   users: User[];

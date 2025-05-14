@@ -25,7 +25,7 @@ export default function LeaderboardPage() {
                 Liderlik Tablosu
               </h1>
               <p className="text-base max-w-[600px] text-gray-500 md:text-xl">
-                En çok SpotiCoin'e sahip olan oyuncular. Sıralamalarda yerini al ve müzik bilgini herkese göster!
+                En çok SpotiCoin&apos;e sahip olan oyuncular. Sıralamalarda yerini al ve müzik bilgini herkese göster!
               </p>
             </div>
           </div>

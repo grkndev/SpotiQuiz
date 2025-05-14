@@ -1,5 +1,5 @@
 import "next-auth"
-import { JWT } from "next-auth/jwt"
+// import { JWT } from "next-auth/jwt"
 import { Badge } from "@/lib/types"
 
 declare module "next-auth" {

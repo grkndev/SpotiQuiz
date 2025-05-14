@@ -13,8 +13,7 @@ interface QuestionIndicatorsProps {
 
 export function QuestionIndicators({
   questions,
-  currentQuestionIndex,
-  onNavigate
+  currentQuestionIndex
 }: QuestionIndicatorsProps) {
   return (
     <div className="flex justify-center mb-6 flex-wrap gap-2">

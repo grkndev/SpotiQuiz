@@ -2,7 +2,7 @@
 
 import { createContext, useContext, ReactNode, useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { supabase } from "@/lib/supabase";
+// import { supabase } from "@/lib/supabase";
 import { UserProfile, GameLog, Badge } from "@/lib/types";
 import { getUserProfile, getUserGameLogs, getUserBadges } from "@/lib/db";
 

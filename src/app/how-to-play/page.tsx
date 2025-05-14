@@ -60,7 +60,7 @@ export default function HowToPlayPage() {
                   <div className="rounded-full bg-green-100 p-1.5 mr-3 mt-0.5">
                     <Music className="h-4 w-4 text-green-600" />
                   </div>
-                  <p>Spotifty'dan seçilecek rastgele bir şarkıyı dinle</p>
+                  <p>Spotifty&apos;dan seçilecek rastgele bir şarkıyı dinle</p>
                 </li>
                 
                 <li className="flex items-start">
@@ -102,7 +102,7 @@ export default function HowToPlayPage() {
                   <div className="rounded-full bg-green-100 p-1.5 mr-3 mt-0.5">
                     <SkipForward className="h-4 w-4 text-green-600" />
                   </div>
-                  <p>Yarışmacı soruları "PAS" geçme hakkına sahiptir</p>
+                  <p>Yarışmacı soruları &quot;PAS&quot; geçme hakkına sahiptir</p>
                 </li>
                 
                 <li className="flex items-start">
@@ -132,7 +132,7 @@ export default function HowToPlayPage() {
               Puanlama Sistemi
             </h2>
             <p className="text-base max-w-[700px] text-gray-500">
-              SpotiQuiz'de daha fazla puan kazanmak ve liderlik tablosunda yükselmek için stratejini belirle!
+              SpotiQuiz&apos;de daha fazla puan kazanmak ve liderlik tablosunda yükselmek için stratejini belirle!
             </p>
           </div>
           
@@ -182,21 +182,21 @@ export default function HowToPlayPage() {
             <div className="space-y-3">
               <h3 className="text-xl font-bold">Spotify hesabım olmadan oynayabilir miyim?</h3>
               <p className="text-gray-500">
-                Hayır, SpotiQuiz oynamak için bir Spotify hesabına ihtiyacın var. Eğer hesabın yoksa, Spotify'ın ücretsiz sürümüne kaydolarak SpotiQuiz'i oynamaya başlayabilirsin.
+                Hayır, SpotiQuiz oynamak için bir Spotify hesabına ihtiyacın var. Eğer hesabın yoksa, Spotify&apos;ın ücretsiz sürümüne kaydolarak SpotiQuiz&apos;i oynamaya başlayabilirsin.
               </p>
             </div>
             
             <div className="space-y-3">
-              <h3 className="text-xl font-bold">Kazandığım SpotiCoin'leri ne için kullanabilirim?</h3>
+              <h3 className="text-xl font-bold">Kazandığım SpotiCoin&apos;leri ne için kullanabilirim?</h3>
               <p className="text-gray-500">
-                SpotiCoin'ler liderlik tablosunda ilerlemeni sağlar. Ayrıca gelecek güncellemelerle SpotiCoin'lerini farklı ödüller için kullanabileceksin.
+                SpotiCoin&apos;ler liderlik tablosunda ilerlemeni sağlar. Ayrıca gelecek güncellemelerle SpotiCoin&apos;lerini farklı ödüller için kullanabileceksin.
               </p>
             </div>
             
             <div className="space-y-3">
-              <h3 className="text-xl font-bold">"PAS" hakkımı nasıl kullanabilirim?</h3>
+              <h3 className="text-xl font-bold">PAS&apos;ımı nasıl kullanabilirim?</h3>
               <p className="text-gray-500">
-                Herhangi bir soruyu yanıtlamakta zorlanıyorsan, "PAS" butonuna tıklayarak o soruyu atlayabilirsin. Pas geçtiğin sorular, diğer tüm sorular tamamlandıktan sonra tekrar karşına çıkacaktır.
+                Herhangi bir soruyu yanıtlamakta zorlanıyorsan, &quot;PAS&quot; butonuna tıklayarak o soruyu atlayabilirsin. Pas geçtiğin sorular, diğer tüm sorular tamamlandıktan sonra tekrar karşına çıkacaktır.
               </p>
             </div>
           </div>

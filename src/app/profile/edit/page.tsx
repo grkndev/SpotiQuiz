@@ -10,13 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { getUserProfile, updateUserProfile } from "@/lib/db";
-import { UserProfile } from "@/lib/types";
+// import { UserProfile } from "@/lib/types";
 import { toast } from "sonner";
 
 export default function EditProfile() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [profile, setProfile] = useState<UserProfile | null>(null);
+    // const [profile, setProfile] = useState<UserProfile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -30,7 +30,7 @@ export default function EditProfile() {
                 try {
                     // Fetch user profile
                     const userProfile = await getUserProfile(session.user.id);
-                    setProfile(userProfile);
+                    // setProfile(userProfile);
                     
                     // Initialize form fields
                     if (userProfile) {

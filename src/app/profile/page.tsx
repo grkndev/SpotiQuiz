@@ -1,24 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Edit, Share2, MoreHorizontal, Music, BadgeCheck, Trophy } from "lucide-react";
-import Link from "next/link";
+import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Edit, Share2, Music, BadgeCheck, Trophy } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getUserGameLogs, getUserProfile } from "@/lib/db";
 import { GameLog, UserProfile } from "@/lib/types";
 import { toast } from "sonner";
 
-export default function Profile() {
+function ProfileContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const searchParams = useSearchParams();
     const refreshParam = searchParams.get('refresh');
-    
+
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [gameLogs, setGameLogs] = useState<GameLog[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -42,7 +41,7 @@ export default function Profile() {
             // Fetch user's game logs
             const logs = await getUserGameLogs(session.user.id);
             setGameLogs(logs);
-            
+
             // Update last refresh time
             setLastRefreshTime(new Date().toISOString());
         } catch (error) {
@@ -117,7 +116,7 @@ export default function Profile() {
                     <CardHeader className="text-center">
                         <CardTitle className="text-xl">Giriş Gerekli</CardTitle>
                         <CardDescription>
-                            Kendi profilinizi görüntülemek için giriş yapmalısınız, 
+                            Kendi profilinizi görüntülemek için giriş yapmalısınız,
                             ama diğer kullanıcıların profillerini misafir olarak görüntüleyebilirsiniz.
                         </CardDescription>
                     </CardHeader>
@@ -166,9 +165,9 @@ export default function Profile() {
                             <Share2 className="h-4 w-4 mr-1" />
                             Profili Paylaş
                         </Button>
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             className="rounded-full text-sm"
                             onClick={editProfile}
                         >
@@ -249,34 +248,85 @@ export default function Profile() {
                 <div className="space-y-4">
                     {gameLogs.length > 0 ? (
                         gameLogs.slice(0, 3).map((log) => (
-                            <div key={log.id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                <div className="flex items-start gap-3">
-                                    <div className="flex-shrink-0">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-400 to-green-600 flex items-center justify-center text-white">
-                                            <Music className="h-5 w-5" />
-                                        </div>
+                            <div key={log.id} className="flex items-center p-3 border rounded-lg">
+                                <div className="flex-shrink-0 mr-3">
+                                    <div className="bg-green-100 p-2 rounded-full">
+                                        <Music className="h-5 w-5 text-green-600" />
                                     </div>
-                                    <div>
-                                        <p className="font-medium">{`Quiz #${log.quiz_id} oynadı`}</p>
-                                        <p className="text-sm text-gray-500">{`${log.correct_answers}/${log.total_questions} doğru cevap • ${log.spoticoin_earned} SpotiCoin kazandı`}</p>
-                                        <p className="text-xs text-gray-400 mt-1">{new Date(log.played_at).toLocaleDateString('tr-TR')}</p>
-                                    </div>
+                                </div>
+                                <div className="flex-grow">
+                                    <p className="font-medium">
+                                        {'Oyun Tamamlandı'}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        Skor: {log.score} - {`${log.correct_answers}/${log.total_questions} doğru cevap`}
+                                    </p>
+                                </div>
+                                <div className="text-xs text-gray-400">
+                                    {new Date(log.played_at).toLocaleDateString('tr-TR')}
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-8 text-gray-500">
-                            <p>Henüz oyun kaydınız bulunmamaktadır.</p>
-                            <Button 
-                                onClick={() => router.push('/quiz')}
-                                className="mt-4 bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                        <div className="text-center p-4 bg-gray-50 rounded-lg">
+                            <p className="text-gray-500">Henüz hiç oyun oynamadınız.</p>
+                            <Button
+                                className="mt-2 bg-gradient-to-r from-green-500 to-green-600"
+                                size="sm"
+                                onClick={() => router.push('/play')}
                             >
-                                Quiz Oyna
+                                Hemen Oyna
                             </Button>
                         </div>
                     )}
                 </div>
             </div>
+
+            {/* Badges Section */}
+            <div className="mt-6 rounded-xl overflow-hidden bg-white shadow-sm p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Rozetler</h2>
+                </div>
+
+                {profile.badges && profile.badges.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {profile.badges.map((badge, index) => (
+                            <div key={index} className="p-4 border rounded-lg bg-yellow-50 text-center">
+                                <div className="flex justify-center mb-2">
+                                    {badge.name === 'Verified' ? (
+                                        <BadgeCheck className="h-8 w-8 text-green-600" />
+                                    ) : badge.name === 'TopPlayer' ? (
+                                        <Trophy className="h-8 w-8 text-yellow-600" />
+                                    ) : (
+                                        <Music className="h-8 w-8 text-blue-600" />
+                                    )}
+                                </div>
+                                <p className="font-medium">{badge.name}</p>
+                                <p className="text-xs text-gray-500">{badge.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center p-4 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">Henüz hiç rozet kazanmadınız.</p>
+                        <p className="text-sm text-gray-400 mt-1">
+                            Oyunlar oynayarak ve etkinliklere katılarak rozetler kazanabilirsiniz.
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
+    );
+}
+
+export default function Profile() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[70vh]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+            </div>
+        }>
+            <ProfileContent />
+        </Suspense>
     );
 }

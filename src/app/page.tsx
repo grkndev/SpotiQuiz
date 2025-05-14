@@ -1,7 +1,6 @@
 import Link from "next/link"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Music, Play, Trophy, Users, Headphones, ChevronRight } from "lucide-react"
+import { Play, Trophy, Users, Headphones, ChevronRight } from "lucide-react"
 import { Card } from "@/components/ui/card"
 
 export default function LandingPage() {
@@ -72,7 +71,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-lg sm:text-xl font-bold">Geniş Müzik Kütüphanesi</h3>
               <p className="text-center text-gray-500 text-sm sm:text-base">
-                Spotify'ın geniş müzik kütüphanesinden seçilen şarkılarla sınırsız eğlence.
+                Spotify&apos;ın geniş müzik kütüphanesinden seçilen şarkılarla sınırsız eğlence.
               </p>
             </Card>
             <Card className="flex flex-col items-center shadow-none border-green-200  p-4  h-full">
@@ -155,7 +154,7 @@ export default function LandingPage() {
               <div className="inline-block rounded-lg bg-green-100 px-3 py-1 text-sm text-green-700">Yorumlar</div>
               <h2 className="text-2xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Kullanıcılarımız Ne Diyor?</h2>
               <p className="text-base max-w-[900px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                SpotiQuiz'i deneyimleyen kullanıcılarımızın yorumları.
+                SpotiQuiz&apos;i deneyimleyen kullanıcılarımızın yorumları.
               </p>
             </div>
           </div>
@@ -182,7 +181,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="mt-4 text-gray-500 text-sm sm:text-base">
-                  "Müzik bilgimi test etmenin en eğlenceli yolu! Arkadaşlarımla saatlerce oynuyoruz."
+                  &quot;Müzik bilgimi test etmenin en eğlenceli yolu! Arkadaşlarımla saatlerce oynuyoruz.&quot;
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -217,7 +216,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="mt-4 text-gray-500 text-sm sm:text-base">
-                  "Spotify'ı çok kullanıyorum ama bu oyun sayesinde yeni şarkılar keşfettim. Harika bir uygulama!"
+                  &quot;Spotify&apos;ı çok kullanıyorum ama bu oyun sayesinde yeni şarkılar keşfettim. Harika bir uygulama!&quot;
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -252,8 +251,8 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="mt-4 text-gray-500 text-sm sm:text-base">
-                  "Müzik bilgimi geliştirmek için mükemmel bir uygulama. Artık arkadaşlarım arasında müzik konusunda
-                  en bilgili benim!"
+                  &quot;Müzik bilgimi geliştirmek için mükemmel bir uygulama. Artık arkadaşlarım arasında müzik konusunda
+                  en bilgili benim!&quot;
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -276,7 +275,7 @@ export default function LandingPage() {
             <div className="space-y-3">
               <h2 className="text-2xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Hemen Oynamaya Başla</h2>
               <p className="text-base max-w-[900px] text-green-50 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                Müzik bilgini test etmek için SpotiQuiz'e kaydol ve hemen oynamaya başla.
+                Müzik bilgini test etmek için SpotiQuiz&apos;e kaydol ve hemen oynamaya başla.
               </p>
             </div>
             <div className="mx-auto w-full max-w-sm space-y-2">

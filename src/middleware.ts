@@ -19,7 +19,7 @@ export async function middleware(request: NextRequest) {
   const isBaseProfilePath = path === '/profile';
   
   // For /profile/[userId], we allow public access to view profiles
-  const isUserProfilePath = path.match(/^\/profile\/[^\/]+$/);
+  // const isUserProfilePath = path.match(/^\/profile\/[^\/]+$/);
   
   // Check if the path is one of the strictly protected paths
   const isStrictlyProtected = strictlyProtectedPaths.some(protectedPath => 

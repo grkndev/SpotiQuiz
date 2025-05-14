@@ -9,7 +9,7 @@ interface SpotifyPlayerProps {
 }
 
 export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerProps) {
-    const { data: session, status } = useSession();
+    const { data: session } = useSession();
     const [playerError, setPlayerError] = useState<string | null>(null);
     const [validUris, setValidUris] = useState<string[]>([]);
     const [playerReady, setPlayerReady] = useState(false);
@@ -92,7 +92,7 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
                         setValidUris([]);
                     }
                 } catch (error) {
-                    // console.error("SpotifyPlayer - Error fixing URIs:", error);
+                    console.error("SpotifyPlayer - Error fixing URIs:", error);
                     setValidUris([]);
                 }
             } else {
@@ -172,9 +172,9 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
         return (
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-center">
                 <p className="text-yellow-600 font-medium mb-2">Çalınacak şarkı bulunamadı</p>
-                <p className="text-gray-600 mb-3">Geçerli bir Spotify şarkı URI'si sağlanmadı.</p>
+                <p className="text-gray-600 mb-3">Geçerli bir Spotify şarkı URI&apos;si sağlanmadı.</p>
                 <div className="text-xs text-gray-500 mb-3 overflow-hidden">
-                    <p>Gelen URI'ler: {JSON.stringify(uris)}</p>
+                    <p>Gelen URI&apos;ler: {JSON.stringify(uris)}</p>
                 </div>
                 {/* Retry button for convenience */}
                 <button
