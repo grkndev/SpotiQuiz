@@ -90,6 +90,7 @@ export function formatTrackForResponse(track: any): QuizTrack {
     image: track.album?.images?.[0]?.url,
     preview_url: track.preview_url,
     external_url: track.external_urls?.spotify,
+    uri: `spotify:track:${track.id}`,
     popularity: track.popularity
   };
 }

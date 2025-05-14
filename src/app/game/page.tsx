@@ -7,29 +7,63 @@ import { QuestionIndicators } from "@/components/game/QuestionIndicators";
 import { QuestionCard } from "@/components/game/QuestionCard";
 import { GameSummary } from "@/components/game/GameSummary";
 
-// Sample questions data structure
-const dummyQuestions: GameQuestion[] = Array.from({ length: 10 }, (_, i) => ({
-  id: i + 1,
-  question: `Sample question ${i + 1}?`,
-  options: [
-    `Option A for question ${i + 1}`,
-    `Option B for question ${i + 1}`,
-    `Option C for question ${i + 1}`,
-    `Option D for question ${i + 1}`,
-  ],
-  correctAnswer: 0,
-  status: QuestionStatus.UNANSWERED
-}));
-
 export default function GamePage() {
-  const [questions, setQuestions] = useState<GameQuestion[]>(dummyQuestions);
+  const [questions, setQuestions] = useState<GameQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for left, 1 for right
   const [gameComplete, setGameComplete] = useState(false);
   const [revisitingSkipped, setRevisitingSkipped] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Fetch questions from API
+  useEffect(() => {
+    async function fetchQuizQuestions() {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/quiz/generate?count=10');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch quiz questions');
+        }
+        
+        const data = await response.json();
+        
+        // Map API response to our GameQuestion format
+        const mappedQuestions = data.quiz.questions.map((q: any) => ({
+          id: q.id,
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.options.indexOf(q.correctAnswer),
+          status: QuestionStatus.UNANSWERED,
+          track: q.track ? {
+            id: q.track.id,
+            name: q.track.name,
+            artist: q.track.artist,
+            uri: q.track.uri,
+            previewUrl: q.track.preview_url
+          } : undefined
+        }));
+
+        console.log(mappedQuestions)
+        
+        setQuestions(mappedQuestions);
+      } catch (err) {
+        console.error('Error fetching quiz questions:', err);
+        setError('Failed to load quiz. Please try again later.');
+       
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchQuizQuestions();
+  }, []);
   
   // Check if game is complete when questions change
   useEffect(() => {
+    if (questions.length === 0) return;
+    
     // If we're already in revisiting mode, check if all questions are answered
     if (revisitingSkipped) {
       const anySkipped = questions.some(q => q.status === QuestionStatus.SKIPPED);
@@ -146,7 +180,7 @@ export default function GamePage() {
   
   const handleRestartGame = () => {
     // Reset questions
-    const resetQuestions = questions.map(q => ({
+    const resetQuestions: GameQuestion[] = questions.map(q => ({
       ...q,
       status: QuestionStatus.UNANSWERED
     }));
@@ -157,6 +191,38 @@ export default function GamePage() {
     setGameComplete(false);
     setRevisitingSkipped(false);
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-lg">Quiz yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error && questions.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="bg-red-100 p-4 rounded-md text-red-800">
+          <p className="font-bold">Hata!</p>
+          <p>{error}</p>
+          <button 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            onClick={() => window.location.reload()}
+          >
+            Tekrar Dene
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -175,7 +241,7 @@ export default function GamePage() {
       )}
       
       {/* Question content with animation */}
-      <div className="relative overflow-hidden min-h-[400px]">
+      <div className="relative overflow-hidden min-h-[500px]">
         {gameComplete ? (
           <GameSummary 
             questions={questions} 

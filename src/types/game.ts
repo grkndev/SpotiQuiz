@@ -6,11 +6,21 @@ export enum QuestionStatus {
   SKIPPED = "skipped"
 }
 
+// Track information
+export interface Track {
+  id: string;
+  name: string;
+  artist: string;
+  uri: string;
+  previewUrl?: string; 
+}
+
 // Game question type
 export interface GameQuestion {
-  id: number;
+  id: number | string;
   question: string;
   options: string[];
   correctAnswer: number;
   status: QuestionStatus;
+  track?: Track; // Optional track data for music questions
 } 

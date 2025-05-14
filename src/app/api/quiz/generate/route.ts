@@ -26,6 +26,7 @@ export async function GET(req: NextRequest) {
   try {
     // Get the authentication token
     const token = await getToken({ req });
+  
     
     if (!token || !token.accessToken) {
       return NextResponse.json(

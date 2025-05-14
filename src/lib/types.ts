@@ -67,6 +67,7 @@ export type QuizTrack = {
   image?: string;
   preview_url?: string;
   external_url?: string;
+  uri?: string;
   popularity?: number;
 };
 
