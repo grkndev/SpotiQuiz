@@ -66,7 +66,7 @@ export function QuestionIndicators({
         return (
           <motion.button
             key={q.id}
-            onClick={() => onNavigate(index)}
+            // onClick={() => onNavigate(index)}
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center",
               "text-sm font-medium transition-all duration-300",

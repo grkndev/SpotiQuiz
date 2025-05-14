@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Music, Menu, Headphones, LogOut, UserRound, Loader2 } from "lucide-react";
+import { Music, Menu, Headphones, LogOut, UserRound, Loader2, Coins, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import {
   Sheet,
@@ -52,7 +52,7 @@ export default function Header() {
   return (
     <nav className="sticky top-0 z-10 bg-white/30 backdrop-filter backdrop-blur-xl shadow-sm border-b border-gray-100">
       <div className="flex justify-between items-center h-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
           <div className="flex items-center justify-center h-9 w-9 rounded-full bg-gradient-to-br from-green-400 to-green-600 shadow-sm">
             <Headphones className="h-5 w-5 text-white" />
           </div>
@@ -69,13 +69,26 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-3">
           {session ? (
             <div className="flex items-center gap-4">
+              <Link href="/game" className="bg-green-300 py-1 px-4 rounded-md flex items-center gap-1 w-full">
+                Oyna
+              </Link>
+              <div className="bg-zinc-200 py-1 px-2 rounded-full flex items-center gap-1 w-full">
+                <span className="text-sm font-medium">1000</span>
+                <Coins className="w-4 h-4" />
+              </div>
               <DropdownMenu >
-                <DropdownMenuTrigger>    <Avatar className="h-9 w-9 border border-gray-200">
-                  <AvatarImage src={session.user?.image || ""} alt={session.user?.name || "User"} />
-                  <AvatarFallback className="bg-green-100 text-green-600">
-                    {session.user?.name?.[0]?.toUpperCase() || "U"}
-                  </AvatarFallback>
-                </Avatar></DropdownMenuTrigger>
+                <DropdownMenuTrigger>
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <Avatar className="h-9 w-9 border border-gray-200">
+                      <AvatarImage src={session.user?.image || ""} alt={session.user?.name || "User"} />
+                      <AvatarFallback className="bg-green-100 text-green-600">
+                        {session.user?.name?.[0]?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm font-medium">{session.user?.name}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56">
                   <DropdownMenuLabel>Hesabım</DropdownMenuLabel>
                   <DropdownMenuSeparator />
