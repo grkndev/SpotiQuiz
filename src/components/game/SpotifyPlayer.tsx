@@ -18,8 +18,8 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
     const trackChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const playerStateRef = useRef<any>(null);
     
-    // Important: We only change the componentKey when the session changes, not on URI changes
-    const [componentKey] = useState(() => `spotify-player-${Date.now()}`);
+    // Force re-render of player component with a unique key when tracks change
+    const [playerKey, setPlayerKey] = useState(() => `spotify-player-${Date.now()}`);
 
     // Validate URIs and ensure they're in the correct format
     useEffect(() => {
@@ -100,13 +100,15 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
         }
     }, [uris]);
 
-    // When URIs change, force the player to reset
+    // When URIs change, force the player to reset completely
     useEffect(() => {
         // Track URI changes for better transitioning
         const currentUri = validUris.length > 0 ? validUris[0] : null;
         
         if (currentUri && previousUriRef.current && currentUri !== previousUriRef.current) {
-            // URI has changed - stop current playback and reset player state
+            // URI has changed - force a complete reset of the player
+            
+            // First stop current playback
             setPlayerReady(false);
             
             // Clear any existing timeout
@@ -114,7 +116,10 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
                 clearTimeout(trackChangeTimeoutRef.current);
             }
             
-            // Set a small delay before attempting to play the new track
+            // Generate a new component key to force remount of the player
+            setPlayerKey(`spotify-player-${Date.now()}`);
+            
+            // Set a delay before allowing playback again
             trackChangeTimeoutRef.current = setTimeout(() => {
                 setPlayerReady(true);
             }, 1000);
@@ -138,6 +143,9 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
         // Reset both player errors and ready state to force a fresh start
         setPlayerError(null);
         setPlayerReady(false);
+        
+        // Force complete remount of the player component
+        setPlayerKey(`spotify-player-${Date.now()}`);
         
         // Force update of player with slight delay
         setTimeout(() => {
@@ -208,7 +216,7 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
     return (
         <div className="sr-only">
             <SpotifyWebPlayer
-                key={componentKey} // Important: Fixed value, doesn't change on every render
+                key={playerKey} // Key changes when track changes, forcing component remount
                 token={session.accessToken}
                 initialVolume={0.5}
                 magnifySliderOnHover={true}

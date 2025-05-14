@@ -72,14 +72,31 @@ export function QuestionCard({
     setTimerEnded(false);
     setRemainingTime(10);
 
-    // Start playing after a delay if we have a track
-    if (formattedTrackUri) {
-      // Add a longer delay to ensure the player fully resets between tracks
-      const timer = setTimeout(() => {
-        // console.log("Starting playback of track:", formattedTrackUri);
-        setIsPlaying(true);
-      }, 1500); // Increased delay to allow player to fully reset
+    // Make sure we're not playing during the track change
+    const stopPlaying = () => {
+      setIsPlaying(false);
+    };
+    
+    // Call stopPlaying immediately
+    stopPlaying();
 
+    // Start playing after a longer delay if we have a track
+    if (formattedTrackUri) {
+      // Extended delay to ensure the player fully resets between tracks
+      const timer = setTimeout(() => {
+        // First make sure we're still stopped
+        setIsPlaying(false);
+        
+        // Then start a second timer to actually start playing
+        const playTimer = setTimeout(() => {
+          setIsPlaying(true);
+        }, 500);
+        
+        // Clean up the play timer
+        return () => clearTimeout(playTimer);
+      }, 2000); // Significantly increased delay for Vercel environment
+
+      // Clean up the main timer
       return () => clearTimeout(timer);
     }
   }, [formattedTrackUri]); // Only run when track URI changes

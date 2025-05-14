@@ -174,8 +174,13 @@ export default function GamePage() {
   const navigateToQuestion = (index: number) => {
     if (index === currentQuestionIndex) return;
     
+    // Update direction and then change the question index
     setDirection(index > currentQuestionIndex ? 1 : -1);
-    setCurrentQuestionIndex(index);
+    
+    // Small delay to allow for UI animations and resource cleanup
+    setTimeout(() => {
+      setCurrentQuestionIndex(index);
+    }, 100);
   };
   
   const handleRestartGame = () => {
