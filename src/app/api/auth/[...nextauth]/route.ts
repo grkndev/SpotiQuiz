@@ -3,7 +3,7 @@ import SpotifyProvider from "next-auth/providers/spotify"
 import { supabaseAdmin } from "@/lib/supabase"
 import { getUserProfile } from "@/lib/db"
 import { JWT } from "next-auth/jwt"
-
+import { generateRandomString } from "@/lib/utils"
 // Spotify API scopes için kapsamlı izinler
 const scopes = [
   "streaming",
@@ -15,6 +15,7 @@ const scopes = [
   "user-read-currently-playing",
   "playlist-read-private"
 ].join(" ");
+
 
 // Token süresinin dolup dolmadığını kontrol et
 const refreshAccessToken = async (token: JWT) => {
@@ -65,6 +66,7 @@ const handler = NextAuth({
 
             authorization: {
                 params: {
+                    state: generateRandomString(16),
                     scope: scopes,
                     response_type: "code",
                     redirect_uri: process.env.NEXTAUTH_URL + "/api/auth/callback/spotify" || "http://127.0.0.1:3000/api/auth/callback/spotify"
