@@ -63,7 +63,6 @@ export default function Header() {
         <div className="hidden md:flex items-center gap-1">
           <NavLink href="/how-to-play">How to Play</NavLink>
           <NavLink href="/leaderboard">Leaderboard</NavLink>
-          <NavLink href="/about">About</NavLink>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
@@ -170,12 +169,7 @@ export default function Header() {
                   >
                     Leaderboard
                   </Link>
-                  <Link
-                    href="/about"
-                    className="flex items-center gap-2 text-gray-700 hover:text-green-600 font-medium text-base py-4 border-b border-gray-100 transition-colors"
-                  >
-                    About
-                  </Link>
+                  
                   <div className="mt-6">
                     {session ? (
                       <div className="flex flex-col gap-4">
