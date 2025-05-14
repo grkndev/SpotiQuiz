@@ -2,6 +2,60 @@ import NextAuth from "next-auth"
 import SpotifyProvider from "next-auth/providers/spotify"
 import { supabase, supabaseAdmin } from "@/lib/supabase"
 import { createUserProfile, getUserProfile, updateUserProfile, addBadgeToUser } from "@/lib/db"
+import { JWT } from "next-auth/jwt"
+
+// Spotify API scopes için kapsamlı izinler
+const scopes = [
+  "streaming",
+  "user-read-email",
+  "user-read-private",
+  "user-top-read",
+  "user-read-playback-state",
+  "user-modify-playback-state",
+  "user-read-currently-playing",
+  "playlist-read-private"
+].join(" ");
+
+// Token süresinin dolup dolmadığını kontrol et
+const refreshAccessToken = async (token: JWT) => {
+  try {
+    const url = "https://accounts.spotify.com/api/token";
+    const params = new URLSearchParams({
+      client_id: process.env.SPOTIFY_CLIENT_ID as string,
+      client_secret: process.env.SPOTIFY_CLIENT_SECRET as string,
+      grant_type: "refresh_token",
+      refresh_token: token.refreshToken as string,
+    });
+
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      method: "POST",
+      body: params
+    });
+
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      accessToken: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+};
 
 const handler = NextAuth({
     providers: [
@@ -11,9 +65,9 @@ const handler = NextAuth({
 
             authorization: {
                 params: {
-                    scope: "streaming user-read-email playlist-read-private user-read-private user-top-read",
-                    redirect_uri: "http://127.0.0.1:3000/api/auth/callback/spotify"
-                    
+                    scope: scopes,
+                    response_type: "code",
+                    redirect_uri: process.env.NEXTAUTH_URL + "/api/auth/callback/spotify" || "http://127.0.0.1:3000/api/auth/callback/spotify"
                 }
             }
         }),
@@ -87,18 +141,31 @@ const handler = NextAuth({
             }
         },
         async jwt({ token, account, profile }) {
-            // Persist the OAuth access_token to the token right after signin
+            // Initial sign-in
             if (account) {
-                token.accessToken = account.access_token
-                token.refreshToken = account.refresh_token
-                token.expiresAt = account.expires_at
-                token.id = profile?.id || token.sub
+                token.accessToken = account.access_token;
+                token.refreshToken = account.refresh_token;
+                token.expiresAt = (account.expires_at as number) * 1000; // Convert to ms
+                token.id = profile?.id || token.sub;
+                return token;
             }
-            return token
+
+            // Return previous token if the access token has not expired yet
+            if (token.expiresAt && Date.now() < token.expiresAt) {
+                return token;
+            }
+
+            // Access token has expired, try to update it
+            return refreshAccessToken(token);
         },
         async session({ session, token }) {
             // Send properties to the client, like an access_token from a provider.
-            session.accessToken = token.accessToken
+            session.accessToken = token.accessToken;
+            if (token.error) {
+                // @ts-ignore - Add error field to session
+                session.error = token.error;
+            }
+            
             if (token.id && session.user) {
                 session.user.id = token.id as string;
                 

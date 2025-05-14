@@ -274,6 +274,7 @@ export default function GamePage() {
                 question={questions[currentQuestionIndex]}
                 onAnswer={handleAnswer}
                 onSkip={handleSkip}
+                currentTrack={questions[currentQuestionIndex].track?.uri }
                 currentIndex={currentQuestionIndex}
                 totalQuestions={questions.length}
               />
