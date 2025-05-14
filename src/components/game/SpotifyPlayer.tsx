@@ -14,7 +14,10 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
     const [validUris, setValidUris] = useState<string[]>([]);
     const [playerReady, setPlayerReady] = useState(false);
     const playerDeviceId = useRef<string | null>(null);
-
+    const previousUriRef = useRef<string | null>(null);
+    const trackChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const playerStateRef = useRef<any>(null);
+    
     // Important: We only change the componentKey when the session changes, not on URI changes
     const [componentKey] = useState(() => `spotify-player-${Date.now()}`);
 
@@ -43,10 +46,6 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
             );
         });
 
-        // Log URIs for debugging
-        // console.log("SpotifyPlayer - Original URIs:", uris);
-        // console.log("SpotifyPlayer - Valid URIs after filtering:", validUriArray);
-
         // If no valid URIs, try to fix them
         if (validUriArray.length === 0) {
             if (uris.length > 0) {
@@ -73,7 +72,6 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
 
                                 // Make sure trackId is a valid Spotify ID (alphanumeric)
                                 if (/^[a-zA-Z0-9]+$/.test(trackId)) {
-                                    // console.log("SpotifyPlayer - Extracted ID:", trackId);
                                     return `spotify:track:${trackId}`;
                                 }
                             } else {
@@ -83,12 +81,9 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
                         })
                         .filter(Boolean) as string[];
 
-                    // console.log("SpotifyPlayer - Fixed URIs:", fixedUris);
-
                     if (fixedUris.length > 0) {
                         setValidUris(fixedUris);
                     } else {
-                        // console.warn("SpotifyPlayer - Could not fix URIs");
                         setValidUris([]);
                     }
                 } catch (error) {
@@ -105,38 +100,32 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
         }
     }, [uris]);
 
-    // Debug: Log the session and access token
-    // useEffect(() => {
-    // console.log("SpotifyPlayer - Session status:", status);
-    // console.log("SpotifyPlayer - Access token available:", !!session?.accessToken);
-    // if (session?.accessToken) {
-    // console.log("SpotifyPlayer - Access token first 10 chars:", session.accessToken.substring(0, 10) + '...');
-    // } else {
-    // console.log("SpotifyPlayer - No access token available");
-    // }
-    // console.log("SpotifyPlayer - URIs being played:", validUris);
-    // console.log("SpotifyPlayer - Player device ID:", playerDeviceId.current);
-    // }, [session, status, validUris]);
-
-    // When URIs change, only update what's playing, NOT remount the player
+    // When URIs change, force the player to reset
     useEffect(() => {
-        if (validUris.length > 0) {
-            // console.log("SpotifyPlayer - URIs changed, updating track (keeping device)");
-            // Reset error state
-            setPlayerError(null);
+        // Track URI changes for better transitioning
+        const currentUri = validUris.length > 0 ? validUris[0] : null;
+        
+        if (currentUri && previousUriRef.current && currentUri !== previousUriRef.current) {
+            // URI has changed - stop current playback and reset player state
+            setPlayerReady(false);
+            
+            // Clear any existing timeout
+            if (trackChangeTimeoutRef.current) {
+                clearTimeout(trackChangeTimeoutRef.current);
+            }
+            
+            // Set a small delay before attempting to play the new track
+            trackChangeTimeoutRef.current = setTimeout(() => {
+                setPlayerReady(true);
+            }, 1000);
         }
+        
+        // Store current URI for next comparison
+        previousUriRef.current = currentUri;
+        
+        // Reset error state when URIs change
+        setPlayerError(null);
     }, [validUris]);
-
-    // Add logging to track state changes
-    // useEffect(() => {
-    // console.log("SpotifyPlayer - isPlaying changed:", isPlaying);
-    // console.log("SpotifyPlayer - playerReady:", playerReady);
-
-    // When starting to play, check if player is ready
-    // if (isPlaying && !playerReady) {
-    // console.log("SpotifyPlayer - Attempting to play before player is ready, waiting...");
-    // }
-    // }, [isPlaying, playerReady]);
 
     const handleRelogin = async () => {
         await signOut({ redirect: false });
@@ -146,9 +135,14 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
     };
 
     const handleRetry = () => {
-        // console.log("SpotifyPlayer - Manual retry requested");
+        // Reset both player errors and ready state to force a fresh start
         setPlayerError(null);
-        setPlayerReady(false); // Reset player ready state to force re-initialization
+        setPlayerReady(false);
+        
+        // Force update of player with slight delay
+        setTimeout(() => {
+            setPlayerReady(true);
+        }, 500);
     };
 
     // Handle token-related issues
@@ -242,24 +236,32 @@ export function SpotifyPlayer({ uris, isPlaying, onTogglePlay }: SpotifyPlayerPr
                     }
                 }}
                 callback={(state) => {
-                    // Log player status for debugging
-                    // console.log("SpotifyPlayer callback:", JSON.stringify(state));
-
+                    // Store the current player state
+                    playerStateRef.current = state;
+                    
                     // Track player device ID
                     if (state.deviceId && !playerDeviceId.current) {
-                        // console.log("SpotifyPlayer - Device ID set to:", state.deviceId);
                         playerDeviceId.current = state.deviceId;
                     }
 
                     // Track player readiness
                     if (!playerReady && state && typeof state.status === 'string' && state.status.toLowerCase() === "ready") {
-                        // console.log("SpotifyPlayer is now ready");
                         setPlayerReady(true);
                     }
 
+                    // Track the player state for debugging
+                    if (state.track && state.track.id) {
+                        // Track is loaded and playing
+                        if (state.isPlaying !== isPlaying && onTogglePlay) {
+                            // If the player's state doesn't match our expected state, sync them
+                            if (state.isPlaying === false && isPlaying === true && !state.errorType) {
+                                onTogglePlay();
+                            }
+                        }
+                    }
+                    
                     // Handle player errors
                     if (state.error) {
-                        // console.error("SpotifyPlayer error:", state.error);
                         setPlayerError(state.error);
 
                         // If there's an error and we were trying to play, notify parent

@@ -74,10 +74,11 @@ export function QuestionCard({
 
     // Start playing after a delay if we have a track
     if (formattedTrackUri) {
+      // Add a longer delay to ensure the player fully resets between tracks
       const timer = setTimeout(() => {
         // console.log("Starting playback of track:", formattedTrackUri);
         setIsPlaying(true);
-      }, 1000);
+      }, 1500); // Increased delay to allow player to fully reset
 
       return () => clearTimeout(timer);
     }
