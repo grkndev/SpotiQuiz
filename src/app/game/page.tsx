@@ -241,7 +241,7 @@ export default function GamePage() {
       )}
       
       {/* Question content with animation */}
-      <div className="relative overflow-hidden min-h-[500px]">
+      <div className="relative overflow-hidden h-screen  justify-center flex">
         {gameComplete ? (
           <GameSummary 
             questions={questions} 
@@ -274,7 +274,7 @@ export default function GamePage() {
                 question={questions[currentQuestionIndex]}
                 onAnswer={handleAnswer}
                 onSkip={handleSkip}
-                currentTrack={questions[currentQuestionIndex].track?.uri }
+                currentTrack={questions[currentQuestionIndex].track?.uri! }
                 currentIndex={currentQuestionIndex}
                 totalQuestions={questions.length}
               />

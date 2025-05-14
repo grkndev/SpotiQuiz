@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { GameQuestion } from "@/types/game";
 import { SpotifyPlayer } from "./SpotifyPlayer";
+import { Pause, Play } from "lucide-react";
 
 interface QuestionCardProps {
   question: GameQuestion;
@@ -87,6 +88,7 @@ export function QuestionCard({
     // console.log("Toggle playback called, current state:", { isPlaying, timerEnded });
 
     if (timerEnded) {
+      return;
       // If timer ended, clicking will restart from beginning
       setTimerEnded(false);
       setRemainingTime(10);
@@ -172,22 +174,19 @@ export function QuestionCard({
 
             <button
               onClick={togglePlayback}
-              className={`px-4 py-2 text-white rounded-md transition-colors flex items-center gap-2 ${timerEnded
-                  ? "bg-blue-500 hover:bg-blue-600"
-                  : "bg-green-500 hover:bg-green-600"
+              className={`p-4 text-white rounded-full transition-colors bg-black hover:bg-black/80 flex items-center justify-center gap-2 ${timerEnded
+                ? "opacity-50"
+                : "opacity-100"
                 }`}
               disabled={!question.track.previewUrl && !question.track.uri}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                {isPlaying ? (
-                  // Pause icon
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 00-1 1v2a1 1 0 001 1h2a1 1 0 001-1V9a1 1 0 00-1-1H7zm4 0a1 1 0 00-1 1v2a1 1 0 001 1h2a1 1 0 001-1V9a1 1 0 00-1-1h-2z" clipRule="evenodd" />
-                ) : (
-                  // Play icon
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
-                )}
-              </svg>
-              {timerEnded ? "Tekrar Oynat" : (isPlaying ? "Duraklat" : "Çal")}
+              {isPlaying ? (
+                // Pause icon
+                <Pause fill="white" />
+              ) : (
+                // Play icon
+                <Play fill="white" />
+              )}
             </button>
           </div>
         </div>
@@ -199,8 +198,8 @@ export function QuestionCard({
             key={optionIndex}
             onClick={() => handleOptionClick(optionIndex)}
             className={`w-full p-4 rounded-md text-left transition-colors ${selectedOption === optionIndex
-                ? "bg-blue-500 text-white"
-                : "bg-gray-100 hover:bg-gray-200"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-100 hover:bg-gray-200"
               }`}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
