@@ -11,6 +11,11 @@ import { Trophy, Medal } from "lucide-react";
 import { User } from "@/lib/leaderboard-data";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card"
 
 interface LeaderboardTableProps {
   users: User[];
@@ -66,32 +71,33 @@ export function LeaderboardTable({ users }: LeaderboardTableProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.id} className={cn(
-              user.rank === 1 ? "bg-yellow-50" : 
-              user.rank === 2 ? "bg-gray-50" : 
-              user.rank === 3 ? "bg-amber-50" : ""
+          {users.map((user, index) => (
+            <TableRow key={user.user_id} className={cn(
+              index === 0 ? "bg-yellow-50" :
+                index === 1 ? "bg-gray-50" :
+                  index === 2 ? "bg-amber-50" : ""
             )}>
               <TableCell className="text-center">
-                {user.rank && getRankIcon(user.rank)}
+                {index + 1 && getRankIcon(index + 1)}
               </TableCell>
               <TableCell>
-                <Link 
-                  href={`/profile/${user.id}`} 
+                <Link
+                  href={`/profile/${user.user_id}`}
                   className="flex items-center space-x-3 hover:underline-offset-2 hover:underline transition-all"
                 >
                   <Avatar>
-                    <AvatarImage src={user.avatarUrl} alt={user.username} />
+                    <AvatarImage src={"http://github.com/shadcn.png"} alt={user.username} />
                     <AvatarFallback>{getInitials(user.username)}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="font-medium">{user.username}</div>
                   </div>
                 </Link>
+
               </TableCell>
-              <TableCell className="text-center font-medium">{user.spotiCoins.toLocaleString()}</TableCell>
-              <TableCell className="hidden md:table-cell text-center">{user.totalGamesPlayed}</TableCell>
-              <TableCell className="hidden md:table-cell text-center">{`${Math.round(user.winRate * 100)}%`}</TableCell>
+              <TableCell className="text-center font-medium">{user.spoticoin.toLocaleString()}</TableCell>
+              <TableCell className="hidden md:table-cell text-center">{user.total_games}</TableCell>
+              <TableCell className="hidden md:table-cell text-center">{isNaN(user.correct_answers / user.total_questions * 100) ? "0" : Math.round(user.correct_answers / user.total_questions * 100)}%</TableCell>
             </TableRow>
           ))}
         </TableBody>
